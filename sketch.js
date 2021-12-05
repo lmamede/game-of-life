@@ -57,53 +57,69 @@ function make2DArray(cols, rows){
 let grid;
 let cols;
 let rows;
-let resolution = 40;
+let start = false;
+let cellSize = 40;
 
 function setup(){
     createCanvas(innerWidth, innerHeight);
-    cols = floor(width/resolution);
-    rows = floor(height/resolution);
+    cols = floor(width/cellSize);
+    rows = floor(height/cellSize);
     grid = make2DArray(cols,rows);
+
     for(let i =0; i<cols; i++){
         for(let j =0; j<rows; j++){
-            grid[i][j] = new Cell(floor(random(2)),0); 
-            
+            grid[i][j] = new Cell(0,0);
         }
-
     }
+    
+    addEventListener('click', (event) => {
+        grid[round(event.clientX/cellSize)][round(event.clientY/cellSize)] = new Cell(floor(random(2)),0); 
+
+    })
+
+    var button = createButton("Start!");
+    button.mousePressed(startCircleOfLife)
+
+
+}
+
+function startCircleOfLife(){
+    start = true;
 }
 
 function draw(){
-    background(0);
+    background(255);
     for(let i =0; i<cols; i++){
         for(let j =0; j<rows; j++){
-            let x = i * resolution;
-            let y = j * resolution;
+            let x = i * cellSize;
+            let y = j * cellSize;
             if(grid[i][j].state == 1){
-                fill(255);
-                stroke(0);
-                rect(x, y, resolution-1, resolution-1);        
+                fill(0);
+                stroke(255);
+                rect(x, y, cellSize-1, cellSize-1);        
             }
         }
 
     }
 
     //compute next based on grid
-    for(let i =0; i<cols; i++){
-        for(let j =0; j<rows; j++){
-            let cell = grid[i][j];
+    if(start == true){
+        for(let i =0; i<cols; i++){
+            for(let j =0; j<rows; j++){
+                let cell = grid[i][j];
 
-            cell.countLiveNeighbors(grid, i, j);
+                cell.countLiveNeighbors(grid, i, j);
 
-            //change state
-            if(cell.state == 0 && cell.liveNeighbors == 3){
-                cell.oldState = cell.state;
-                cell.state = 1;
-            } else if(cell.state == 1 && (cell.liveNeighbors < 2 || cell.liveNeighbors >3)){
-                cell.oldState = cell.state;
-                cell.state = 0;
-            } else {
-                cell.oldState = cell.state;
+                //change state
+                if(cell.state == 0 && cell.liveNeighbors == 3){
+                    cell.oldState = cell.state;
+                    cell.state = 1;
+                } else if(cell.state == 1 && (cell.liveNeighbors < 2 || cell.liveNeighbors >3)){
+                    cell.oldState = cell.state;
+                    cell.state = 0;
+                } else {
+                    cell.oldState = cell.state;
+                }
             }
         }
     }
