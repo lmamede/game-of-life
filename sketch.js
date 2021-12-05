@@ -1,11 +1,15 @@
 class Cell {
-    constructor(state, nextState) {
+    constructor(state, oldState) {
         this.state = state;
-        this.nextState = nextState;
+        this.oldState = oldState;
     }
 
     getState = () => {
         return this.state;
+    };
+
+    getOldState = () => {
+        return this.oldState;
     };
 }
 
@@ -40,9 +44,6 @@ function setup(){
 
 function draw(){
     background(0);
-
-    console.table(grid);
-
     for(let i =0; i<cols; i++){
         for(let j =0; j<rows; j++){
             let x = i * resolution;
@@ -56,30 +57,26 @@ function draw(){
 
     }
 
-    let next = make2DArray(cols, rows);
-
     //compute next based on grid
     for(let i =0; i<cols; i++){
         for(let j =0; j<rows; j++){
-            let state = grid[i][j].getState();
+            let cell = grid[i][j];
             //count live neighbors
             let sum =0;
             neighbors = countLiveNeighbors(grid, i, j);
 
             //change state
-            if(state == 0 && neighbors == 3){
-                next[i][j] =  new Cell(1,0);
-            } else if(state == 1 && (neighbors < 2 || neighbors >3)){
-                next[i][j] = new Cell(0,0);
+            if(cell.getState() == 0 && neighbors == 3){
+                cell.oldState = cell.state;
+                cell.state = 1;
+            } else if(cell.getState() == 1 && (neighbors < 2 || neighbors >3)){
+                cell.oldState = cell.state;
+                cell.state = 0;
             } else {
-                next[i][j] = grid[i][j];
+                cell.oldState = cell.state;
             }
         }
-
     }
-
-    grid = next;
-
 }
 
 
@@ -90,10 +87,10 @@ function countLiveNeighbors(grid, x, y){
             let col = (x + i + cols) % cols;
             let row = (y + j + rows) % rows;
 
-            sum+=grid[col][row].state;
+            sum+=grid[col][row].getOldState();
         }
     }
 
-    sum -=grid[x][y].state;
+    sum -=grid[x][y].getOldState();
     return sum;
 }
