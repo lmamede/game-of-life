@@ -60,9 +60,9 @@ let rows;
 let resolution = 40;
 
 function setup(){
-    createCanvas(600, 400);
-    cols = width/resolution;
-    rows = height/resolution;
+    createCanvas(innerWidth, innerHeight);
+    cols = floor(width/resolution);
+    rows = floor(height/resolution);
     grid = make2DArray(cols,rows);
     for(let i =0; i<cols; i++){
         for(let j =0; j<rows; j++){
@@ -72,7 +72,6 @@ function setup(){
 
     }
 }
-
 
 function draw(){
     background(0);
