@@ -1,15 +1,47 @@
 class Cell {
-    constructor(state, oldState) {
+    constructor(state, oldState, liveNeighbors) {
         this.state = state;
         this.oldState = oldState;
+        this.liveNeighbors = liveNeighbors;
     }
 
-    getState = () => {
-        return this.state;
-    };
+    get state(){
+        return this._state;
+    }
 
-    getOldState = () => {
-        return this.oldState;
+    set state(state){
+        return this._state = state;
+    }
+
+    get oldState(){
+        return this._oldState;
+    }
+
+    set oldState(oldState){
+        return this._oldState = oldState;
+    }
+
+    get liveNeighbors(){
+        return this._liveNeighbors;
+    }
+
+    set liveNeighbors(liveNeighbors){
+        return this._liveNeighbors = liveNeighbors;
+    }
+
+    countLiveNeighbors = (grid, x, y) => {
+        this._liveNeighbors = 0;
+     
+        for(let i = -1; i < 2; i++){
+            for(let j = -1; j < 2; j++){    
+                let col = (x + i + cols) % cols;
+                let row = (y + j + rows) % rows;
+
+                this._liveNeighbors+=grid[col][row].oldState;
+            }
+        }
+    
+        this._liveNeighbors -= this._oldState;
     };
 }
 
@@ -48,7 +80,7 @@ function draw(){
         for(let j =0; j<rows; j++){
             let x = i * resolution;
             let y = j * resolution;
-            if(grid[i][j].getState() == 1){
+            if(grid[i][j].state == 1){
                 fill(255);
                 stroke(0);
                 rect(x, y, resolution-1, resolution-1);        
@@ -61,15 +93,14 @@ function draw(){
     for(let i =0; i<cols; i++){
         for(let j =0; j<rows; j++){
             let cell = grid[i][j];
-            //count live neighbors
-            let sum =0;
-            neighbors = countLiveNeighbors(grid, i, j);
+
+            cell.countLiveNeighbors(grid, i, j);
 
             //change state
-            if(cell.getState() == 0 && neighbors == 3){
+            if(cell.state == 0 && cell.liveNeighbors == 3){
                 cell.oldState = cell.state;
                 cell.state = 1;
-            } else if(cell.getState() == 1 && (neighbors < 2 || neighbors >3)){
+            } else if(cell.state == 1 && (cell.liveNeighbors < 2 || cell.liveNeighbors >3)){
                 cell.oldState = cell.state;
                 cell.state = 0;
             } else {
@@ -79,18 +110,3 @@ function draw(){
     }
 }
 
-
-function countLiveNeighbors(grid, x, y){
-    sum = 0;
-    for(let i = -1; i < 2; i++){
-        for(let j = -1; j < 2; j++){    
-            let col = (x + i + cols) % cols;
-            let row = (y + j + rows) % rows;
-
-            sum+=grid[col][row].getOldState();
-        }
-    }
-
-    sum -=grid[x][y].getOldState();
-    return sum;
-}
